@@ -6,7 +6,7 @@ pipeline {
     CONTAINER_NAME = 'ci-cd-node-app'
     HOST_PORT = '3000'
 
-    PATH+DOCKER = 'C:\\Users\\Rishika\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin'
+    DOCKER_BIN = 'C:\\Users\\Rishika\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin'
 }
 
     options {
