@@ -10,9 +10,9 @@ pipeline {
     options {
         timestamps()
         disableConcurrentBuilds()
+        skipDefaultCheckout(true)
     }
 
-    // Requires the GitHub plugin and a GitHub webhook pointing to /github-webhook/.
     triggers {
         githubPush()
     }
@@ -26,14 +26,14 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh 'npm ci'
-                sh 'npm test'
+                bat 'npm ci'
+                bat 'npm test'
             }
         }
 
         stage('Build Docker image') {
             steps {
-                sh 'docker build --pull -t $IMAGE_NAME:$BUILD_NUMBER -t $IMAGE_NAME:latest .'
+                bat 'docker build --pull -t %IMAGE_NAME%:%BUILD_NUMBER% -t %IMAGE_NAME%:latest .'
             }
         }
 
@@ -46,17 +46,16 @@ pipeline {
                 }
             }
             steps {
-                sh '''
-                    docker rm -f "$CONTAINER_NAME" || true
-                    docker run -d \\
-                      --name "$CONTAINER_NAME" \\
-                      --restart unless-stopped \\
-                      -p "$HOST_PORT:3000" \\
-                      "$IMAGE_NAME:$BUILD_NUMBER"
-                    docker ps --filter "name=$CONTAINER_NAME"
+                bat '''
+                    docker rm -f %CONTAINER_NAME% >nul 2>&1 || echo No existing container to remove
+                    docker run -d ^
+                      --name %CONTAINER_NAME% ^
+                      --restart unless-stopped ^
+                      -p %HOST_PORT%:3000 ^
+                      %IMAGE_NAME%:%BUILD_NUMBER%
+                    docker ps --filter "name=%CONTAINER_NAME%"
                 '''
             }
         }
     }
-
 }
